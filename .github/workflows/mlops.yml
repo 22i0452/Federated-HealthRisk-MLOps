@@ -1,0 +1,50 @@
+name: MLOps-CI-CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Test FastAPI import
+      run: |
+        python -c "import fastapi; import uvicorn"
+
+    - name: Test global model load
+      run: |
+        python - << 'EOF'
+        import joblib
+        m = joblib.load("global_model.pkl")
+        print("Model loaded OK")
+        EOF
+
+    - name: Test one fake prediction
+      run: |
+        python - << 'EOF'
+        import joblib
+        import numpy as np
+        m = joblib.load("global_model.pkl")
+        sample = np.zeros((1,10))
+        pred = m.predict(sample)
+        print("Pred:", pred)
+        EOF
+
+    - name: CI/CD Done
+      run: echo "Pipeline completed!"
