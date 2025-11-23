@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthrisk-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healthrisk
+  template:
+    metadata:
+      labels:
+        app: healthrisk
+    spec:
+      containers:
+        - name: healthrisk
+          image: your-dockerhub-username/healthrisk:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: healthrisk-service
+spec:
+  type: ClusterIP
+  selector:
+    app: healthrisk
+  ports:
+    - port: 8000
+      targetPort: 8000
